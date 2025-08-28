@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/signup")
+@RequestMapping("/api/v1/signup")
 @RequiredArgsConstructor
 @Slf4j
 public class SignupController {
