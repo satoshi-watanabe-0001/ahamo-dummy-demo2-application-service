@@ -1,4 +1,4 @@
-package com.ahamo.dummy.demo2.template.controller;
+package com.ahamo.dummy.demo2.application.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class HealthController {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
             "timestamp", LocalDateTime.now(),
-            "service", "backend-template-service"
+            "service", "application-service"
         ));
     }
 }
