@@ -1,14 +1,14 @@
 server:
-  port: 8080
+  port: 8083
   servlet:
     context-path: /api/v1
 
 spring:
   application:
-    name: ${SERVICE_NAME:application-service}
+    name: ${SERVICE_NAME:ahamo-dummy-demo2-application-service}
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/${DB_NAME:ahamo_dummy_demo2}
+    url: jdbc:postgresql://localhost:5432/${DB_NAME:application_service_db}
     username: ${DB_USERNAME:ahamo_user}
     password: ${DB_PASSWORD:ahamo_password}
     driver-class-name: org.postgresql.Driver
@@ -21,6 +21,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+    open-in-view: false
         
   flyway:
     enabled: true
