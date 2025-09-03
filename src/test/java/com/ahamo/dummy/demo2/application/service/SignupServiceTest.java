@@ -1,5 +1,6 @@
 package com.ahamo.dummy.demo2.application.service;
 
+import com.ahamo.dummy.demo2.application.dto.FlowConfigResponse;
 import com.ahamo.dummy.demo2.application.dto.SignupValidationRequest;
 import com.ahamo.dummy.demo2.application.dto.SignupValidationResponse;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SignupServiceTest {
@@ -16,167 +17,64 @@ class SignupServiceTest {
     private SignupService signupService;
 
     @Test
-    void validateSignupStep_ValidBasicInfo_ShouldReturnSuccess() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"userName\":\"田中太郎\",\"email\":\"tanaka@example.com\",\"phone\":\"090-1234-5678\"}",
-            1
-        );
+    void validateSignup_Success() {
+        SignupValidationRequest request = new SignupValidationRequest();
+        request.setApplicationId("APP-TEST-001");
+        request.setStepData("{\"userName\":\"テストユーザー\"}");
+        request.setStepNumber(1);
 
-        SignupValidationResponse result = signupService.validateSignupStep(request);
+        SignupValidationResponse response = signupService.validateSignup(request);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("プラン選択");
-        assertThat(result.getMessage()).contains("検証が完了しました");
+        assertTrue(response.isValid());
+        assertEquals("検証が成功しました", response.getMessage());
+        assertEquals(2, response.getNextStep());
+        assertTrue(response.getErrors().isEmpty());
     }
 
     @Test
-    void validateSignupStep_InvalidBasicInfo_ShouldReturnErrors() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"userName\":\"\",\"email\":\"invalid-email\",\"phone\":\"\"}",
-            1
-        );
+    void validateSignup_InvalidApplicationId() {
+        SignupValidationRequest request = new SignupValidationRequest();
+        request.setApplicationId("");
+        request.setStepNumber(1);
 
-        SignupValidationResponse result = signupService.validateSignupStep(request);
+        SignupValidationResponse response = signupService.validateSignup(request);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("プラン選択");
+        assertFalse(response.isValid());
+        assertEquals("検証エラーが発生しました", response.getMessage());
+        assertFalse(response.getErrors().isEmpty());
+        assertTrue(response.getErrors().contains("申し込みIDが無効です"));
     }
 
     @Test
-    void validateSignupStep_ValidPlanSelection_ShouldReturnSuccess() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"selectedPlan\":\"ahamo大盛り\"}",
-            2
-        );
+    void validateSignup_InvalidStepNumber() {
+        SignupValidationRequest request = new SignupValidationRequest();
+        request.setApplicationId("APP-TEST-001");
+        request.setStepNumber(0);
 
-        SignupValidationResponse result = signupService.validateSignupStep(request);
+        SignupValidationResponse response = signupService.validateSignup(request);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("端末選択");
-        assertThat(result.getMessage()).contains("検証が完了しました");
+        assertFalse(response.isValid());
+        assertTrue(response.getErrors().contains("ステップ番号が無効です"));
     }
 
     @Test
-    void validateSignupStep_InvalidPlanSelection_ShouldReturnErrors() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"selectedPlan\":\"\"}",
-            2
-        );
+    void getFlowConfig_Success() {
+        FlowConfigResponse response = signupService.getFlowConfig();
 
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("端末選択");
-    }
-
-    @Test
-    void validateSignupStep_ValidDeviceSelection_ShouldReturnSuccess() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"selectedDevice\":\"iPhone 15\"}",
-            3
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("オプション選択");
-        assertThat(result.getMessage()).contains("検証が完了しました");
-    }
-
-    @Test
-    void validateSignupStep_ValidOptionSelection_ShouldReturnSuccess() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"selectedOptions\":\"AppleCare+\"}",
-            4
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("確認・提出");
-        assertThat(result.getMessage()).contains("検証が完了しました");
-    }
-
-    @Test
-    void validateSignupStep_ValidConfirmation_ShouldReturnCompletion() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"confirmation\":true}",
-            5
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("完了");
-        assertThat(result.getMessage()).contains("検証が完了しました");
-    }
-
-    @Test
-    void validateSignupStep_InvalidConfirmation_ShouldReturnErrors() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"confirmation\":false}",
-            5
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getNextStep()).isEqualTo("完了");
-    }
-
-    @Test
-    void validateSignupStep_InvalidStepNumber_ShouldReturnErrors() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{\"test\":\"data\"}",
-            99
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isFalse();
-        assertThat(result.getErrors()).isNotEmpty();
-        assertThat(result.getNextStep()).isEqualTo("基本情報入力");
-    }
-
-    @Test
-    void validateSignupStep_EmptyStepData_ShouldReturnErrors() {
-        SignupValidationRequest request = new SignupValidationRequest(
-            "APP-001",
-            "{}",
-            1
-        );
-
-        SignupValidationResponse result = signupService.validateSignupStep(request);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsValid()).isFalse();
-        assertThat(result.getErrors()).isNotEmpty();
-        assertThat(result.getNextStep()).isEqualTo("基本情報入力");
+        assertNotNull(response);
+        assertEquals(5, response.getTotalSteps());
+        assertEquals("約15分", response.getEstimatedTotalTime());
+        
+        assertNotNull(response.getSteps());
+        assertEquals(5, response.getSteps().size());
+        
+        FlowConfigResponse.StepConfig step1 = response.getSteps().get("1");
+        assertNotNull(step1);
+        assertEquals("基本情報入力", step1.getName());
+        assertEquals("約3分", step1.getEstimatedTime());
+        
+        assertNotNull(response.getSupportContact());
+        assertEquals("0120-123-456", response.getSupportContact().getPhone());
+        assertEquals("support@ahamo.com", response.getSupportContact().getEmail());
     }
 }

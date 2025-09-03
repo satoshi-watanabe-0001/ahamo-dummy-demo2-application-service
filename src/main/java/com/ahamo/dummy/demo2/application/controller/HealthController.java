@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/health")
+@RequestMapping("/health")
 public class HealthController {
 
     @GetMapping
@@ -17,7 +17,7 @@ public class HealthController {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
             "timestamp", LocalDateTime.now(),
-            "service", "application-service"
+            "service", "ahamo-dummy-demo2-application-service"
         ));
     }
 }

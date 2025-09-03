@@ -18,7 +18,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build -x test
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8083
 
 # Run the application
-CMD ["java", "-jar", "build/libs/ahamo-dummy-demo2-backend-template-1.0.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "build/libs/ahamo-dummy-demo2-application-service-1.0.0-SNAPSHOT.jar"]
